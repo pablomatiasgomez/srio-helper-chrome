@@ -1,0 +1,41 @@
+﻿{
+    "manifest_version": 2,
+
+    "name": "Santander Rio Helper",
+    "short_name": "SRioHelper",
+    "description": "Extension para modificar los estilos del home banking del santander rio para que sea mas usable.",
+    "author": "Pablo Matías Gomez",
+    "version": "1.0",
+
+    "icons": {
+        "16": "images/icons/icon16.png",
+        "48": "images/icons/icon48.png" 
+    },
+
+    "web_accessible_resources": [
+        "images/*.*",
+        "css/styles.css",
+        "js/functions.js"
+    ],
+
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.personas.santanderrio.com.ar/*"
+            ],
+            "all_frames": true,
+
+            "js": [
+                "js/jquery-1.11.2.min.js",
+                "js/Utils.js",
+                "js/ResumenInversionesPage.js",
+                "js/functions.js"
+            ],
+
+            "css": [
+                "css/styles.css"
+            ]
+        }
+    ]
+}
+
