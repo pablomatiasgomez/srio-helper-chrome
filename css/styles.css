@@ -33,11 +33,3 @@
 .tilesTRInfo td div.formlink:last-child:after {
 	content: '';
 }
-
-
-
-/* PF RIGHT COLUMN LINKS FIX */
-
-.tilesTRInfo td:last-child {
-	white-space: nowrap;
-}
