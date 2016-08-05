@@ -10,7 +10,7 @@ var ResumenInversionesPage = function(utils) {
 	var $bonosTable = $();
 	var $accionesTable = $();
 
-	var totalTrStr = "<tr class='tilesTRInfo'><td class='sub' colspan='{{colspan}}'><strong>TOTAL</strong></td><td align='right'><strong><table width='20' border='0' style='table-layout:auto; background-color:transparent; width:20px !important;'><tbody><tr><td align='left' style='border-width:0px; padding: 1px 2px 1px 1px; background-color:transparent;' nowrap=''>$</td><td align='right' style='border-width:0px; padding: 1px; background-color:transparent;' nowrap=''>{{totalPesos}}</td></tr></tbody></table></strong></td><td align='right'><strong><table width='20' border='0' style='table-layout:auto; background-color:transparent; width:20px !important;'><tbody><tr><td align='left' style='border-width:0px; padding: 1px 2px 1px 1px; background-color:transparent;' nowrap=''>U$S</td><td align='right' style='border-width:0px; padding: 1px; background-color:transparent;' nowrap=''>{{totalDollars}}</td></tr></tbody></table></strong></td><td>&nbsp;</td></tr>";
+	var infoTrStr = "<tr class='tilesTRInfo'><td class='sub' colspan='{{colspan}}'><strong>{{infoText}}</strong></td><td align='right'><strong><table width='20' border='0' style='table-layout:auto; background-color:transparent; width:20px !important;'><tbody><tr><td align='left' style='border-width:0px; padding: 1px 2px 1px 1px; background-color:transparent;' nowrap=''>$</td><td align='right' style='border-width:0px; padding: 1px; background-color:transparent;' nowrap=''>{{totalPesos}}</td></tr></tbody></table></strong></td><td align='right'><strong><table width='20' border='0' style='table-layout:auto; background-color:transparent; width:20px !important;'><tbody><tr><td align='left' style='border-width:0px; padding: 1px 2px 1px 1px; background-color:transparent;' nowrap=''>U$S</td><td align='right' style='border-width:0px; padding: 1px; background-color:transparent;' nowrap=''>{{totalDollars}}</td></tr></tbody></table></strong></td><td>&nbsp;</td></tr>";
 
 	var setTables = function() {
 		$("table.header").each(function() {
@@ -67,7 +67,7 @@ var ResumenInversionesPage = function(utils) {
 		$bonosTable.find("> tbody > tr:last td:first").attr("colspan", "5");
 	};
 
-	var appendTotals = function() {
+	var getTotals = function() {
 		// PF
 		pesosSum += utils.parseValueToFloat($plazosFijosTable.find("> tbody > tr:last > td:eq(1) td[align=right]").text());
 		dollarsSum += utils.parseValueToFloat($plazosFijosTable.find("> tbody > tr:last > td:eq(2) td[align=right]").text());
@@ -77,14 +77,14 @@ var ResumenInversionesPage = function(utils) {
 		$fondosPesosTable.find("tr.fondos > td:nth-child(5)").each(function() {
 			fondosPesosSum += utils.parseValueToFloat($(this).text().replace("$", ""));
 		});
-		$fondosPesosTable.find("> tbody").append(totalTrStr.replace("{{colspan}}", "4").replace("{{totalPesos}}", utils.parseValueToString(fondosPesosSum)).replace("{{totalDollars}}", "0"));
+		$fondosPesosTable.find("> tbody").append(infoTrStr.replace("{{infoText}}", "TOTAL").replace("{{colspan}}", "4").replace("{{totalPesos}}", utils.parseValueToString(fondosPesosSum)).replace("{{totalDollars}}", "0"));
 		pesosSum += fondosPesosSum;
 
 		var fondosDollarsSum = 0;
 		$fondosDollarsTable.find("tr.fondos > td:nth-child(6)").each(function() {
 			fondosDollarsSum += utils.parseValueToFloat($(this).text().replace("U$S", ""));
 		});
-		$fondosDollarsTable.find("> tbody").append(totalTrStr.replace("{{colspan}}", "4").replace("{{totalPesos}}", "0").replace("{{totalDollars}}", utils.parseValueToString(fondosDollarsSum)));
+		$fondosDollarsTable.find("> tbody").append(infoTrStr.replace("{{infoText}}", "TOTAL").replace("{{colspan}}", "4").replace("{{totalPesos}}", "0").replace("{{totalDollars}}", utils.parseValueToString(fondosDollarsSum)));
 		dollarsSum += fondosDollarsSum;
 
 		// Bonos
@@ -93,8 +93,63 @@ var ResumenInversionesPage = function(utils) {
 		// Acciones
 		pesosSum += utils.parseValueToFloat($accionesTable.find("> tbody > tr:last > th:eq(0) td[align=right]").text());
 
-		var totalTr = totalTrStr.replace("{{colspan}}", "1").replace("{{totalPesos}}", utils.parseValueToString(pesosSum)).replace("{{totalDollars}}", utils.parseValueToString(dollarsSum));
-		$allTables.last().after("<table style='margin: 50px 100px;'><tbody>" + totalTr + "</tbody></table>");
+		return {
+			pesos: pesosSum,
+			dollars: dollarsSum
+		};
+	};
+
+	var getVencimientos = function() {
+		var vencimientos = {};
+		var addValue = function(dateStr, value) {
+			if (vencimientos[dateStr]) {
+				vencimientos[dateStr] += value;
+			} else {
+				vencimientos[dateStr] = value;
+			}
+		};
+		var getDateSubstring = function(str) {
+			var match = str.match(/\d{2}\/\d{2}\/\d{4}/);
+			if (match && match.length > 0) return match[0];
+		};
+
+		$plazosFijosTable.find("> tbody > tr:not(.title)").each(function() {
+			var dateStr = getDateSubstring($(this).find("> td:eq(1)").text());
+			if (!dateStr) return;
+			var value = utils.parseValueToFloat($(this).find("> td:eq(6) td[align=right]").text());
+			addValue(dateStr, value);
+		});
+	
+		$bonosTable.find("> tbody > tr:not(.title)").each(function() {
+			var dateStr = getDateSubstring($(this).find("> td:eq(2)").text());
+			if (!dateStr) return;
+			var value = utils.parseValueToFloat($(this).find("> td:eq(5) td[align=right]").text());
+			addValue(dateStr, value);
+		});
+
+		return vencimientos;
+	};
+
+	var appendInfoTable = function(totals, vencimientos) {
+		debugger;
+		var $infoTable = $("<table style='margin: 50px 100px;'><tbody></tbody></table>");
+		$allTables.last().after($infoTable);
+
+		var getDateFromStr = function(str) {
+			var split = str.trim().split("/");
+			return new Date(split[2], split[1] - 1, split[0]);
+		};
+
+		var sortedDates = Object.keys(vencimientos).sort(function(a, b) { 
+			return getDateFromStr(a).getTime() - getDateFromStr(b).getTime();
+		}).map(function(dateStr) {
+			return infoTrStr.replace("{{infoText}}", dateStr).replace("{{colspan}}", "1").replace("{{totalPesos}}", vencimientos[dateStr]).replace("{{totalDollars}}", vencimientos[dateStr]);
+		}).forEach(function(tr) {
+			$infoTable.find("tbody").append(tr);
+		});
+
+		var totalTr = infoTrStr.replace("{{infoText}}", "TOTAL").replace("{{colspan}}", "1").replace("{{totalPesos}}", utils.parseValueToString(totals.pesos)).replace("{{totalDollars}}", utils.parseValueToString(totals.dollars));
+		$infoTable.find("tbody").append(totalTr);
 	};
 
 	// Init
@@ -103,7 +158,9 @@ var ResumenInversionesPage = function(utils) {
 
 		changeTableLinkTexts();
 		addDescriptionColumnToBonosTable();
-		appendTotals();
+		var totals = getTotals();
+		var vencimientos = getVencimientos();
+		appendInfoTable(totals, vencimientos);
 	})();
 	
 

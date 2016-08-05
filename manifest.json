@@ -5,7 +5,7 @@
     "short_name": "SRioHelper",
     "description": "Extension para modificar los estilos del home banking del santander rio para que sea mas usable.",
     "author": "Pablo Matías Gomez",
-    "version": "1.0",
+    "version": "1.1",
 
     "icons": {
         "16": "images/icons/icon16.png",
