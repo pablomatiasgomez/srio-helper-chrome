@@ -143,13 +143,13 @@ var ResumenInversionesPage = function(utils) {
 		var sortedDates = Object.keys(vencimientos).sort(function(a, b) { 
 			return getDateFromStr(a).getTime() - getDateFromStr(b).getTime();
 		}).map(function(dateStr) {
-			return infoTrStr.replace("{{infoText}}", dateStr).replace("{{colspan}}", "1").replace("{{totalPesos}}", vencimientos[dateStr]).replace("{{totalDollars}}", vencimientos[dateStr]);
+			return infoTrStr.replace("{{infoText}}", dateStr).replace("{{colspan}}", "1").replace("{{totalPesos}}", vencimientos[dateStr]).replace("{{totalDollars}}", 0);
 		}).forEach(function(tr) {
-			$infoTable.find("tbody").append(tr);
+			$infoTable.find("> tbody").append(tr);
 		});
 
 		var totalTr = infoTrStr.replace("{{infoText}}", "TOTAL").replace("{{colspan}}", "1").replace("{{totalPesos}}", utils.parseValueToString(totals.pesos)).replace("{{totalDollars}}", utils.parseValueToString(totals.dollars));
-		$infoTable.find("tbody").append(totalTr);
+		$infoTable.find("> tbody").append(totalTr);
 	};
 
 	// Init
