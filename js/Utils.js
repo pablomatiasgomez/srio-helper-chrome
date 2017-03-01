@@ -9,7 +9,7 @@ var Utils = function() {
 		var parts = value.toString().split(".");
 
 		var integerPart = parts[0].split("").reverse().join("").match(/.{1,3}/g).join(".").split("").reverse().join("");
-		return integerPart + "," + parts[1];
+		return integerPart + (parts[1] ? ("," + parts[1].substr(0, 2)) : ",00");
 	};
 
 	// Public

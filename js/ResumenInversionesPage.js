@@ -131,7 +131,6 @@ var ResumenInversionesPage = function(utils) {
 	};
 
 	var appendInfoTable = function(totals, vencimientos) {
-		debugger;
 		var $infoTable = $("<table style='margin: 50px 100px;'><tbody></tbody></table>");
 		$allTables.last().after($infoTable);
 
@@ -140,10 +139,12 @@ var ResumenInversionesPage = function(utils) {
 			return new Date(split[2], split[1] - 1, split[0]);
 		};
 
+		var acum = 0;
 		var sortedDates = Object.keys(vencimientos).sort(function(a, b) { 
 			return getDateFromStr(a).getTime() - getDateFromStr(b).getTime();
 		}).map(function(dateStr) {
-			return infoTrStr.replace("{{infoText}}", dateStr).replace("{{colspan}}", "1").replace("{{totalPesos}}", vencimientos[dateStr]).replace("{{totalDollars}}", 0);
+			acum += vencimientos[dateStr];
+			return infoTrStr.replace("{{infoText}}", dateStr).replace("{{colspan}}", "1").replace("{{totalPesos}}", utils.parseValueToString(vencimientos[dateStr])).replace("{{totalDollars}}", utils.parseValueToString(acum));
 		}).forEach(function(tr) {
 			$infoTable.find("> tbody").append(tr);
 		});
