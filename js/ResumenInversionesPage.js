@@ -61,7 +61,7 @@ var ResumenInversionesPage = function(utils) {
 			var $link = $(this).find("div.formlink a:first");
 			var description = $link.length ? $link.attr("href").split("\"")[3] : "";
 			var $bonoColumn = $(this).find("> td:nth-child(2)");
-			$bonoColumn.after($bonoColumn.clone().css("white-space", "nowrap").text(description));
+			$bonoColumn.after($bonoColumn.clone().css("white-space", "nowrap").attr("align", "center").text(description));
 		});
 
 		$bonosTable.find("> tbody > tr:last td:first").attr("colspan", "5");
