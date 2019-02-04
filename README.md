@@ -1,3 +1,7 @@
+Migrated to a monorepo: https://github.com/pablomatiasgomez/palito-helper-chrome
+
+---
+
 # Santander Rio Helper Extension - Chrome Version
 
 Chrome extension to show some other information and improve the styles of the Santander Rio Home Banking.
